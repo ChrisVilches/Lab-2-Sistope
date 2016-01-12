@@ -36,6 +36,7 @@ void* ejecutar_hilo_equipo(void* arg){
 
 	// Se crea el grupo
 	grupohilo equipo;
+
 	inicializar_grupohilo(&equipo, nombre_archivo, threads_por_equipo);
 
 
@@ -45,6 +46,7 @@ void* ejecutar_hilo_equipo(void* arg){
 	// Comenzar a intersectar las listas
 	// Dado que la funcion intersectar_listas provee los mecanismos de Join, y crear hebras
 	// no es necesario hacerlo aca
+
 	intersectar_listas(&equipo, &id_mejor_hebra_intersecta, &promedio_tiempos);		
 
 	// Detener la cuenta del tiempo

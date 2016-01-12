@@ -14,6 +14,10 @@ main: lib.o monitor.o lista.o grupohilo.o
 # Compilar el main
 	gcc $(OBJ) $(DIR_SRC)/$(NOMBRE_MAIN).c -o $(DIR_OUTPUT)/$(NOMBRE_MAIN) -pthread
 
+debug: dir lib.o monitor.o lista.o grupohilo.o
+# Compilar el main
+	gcc -g $(OBJ) $(DIR_SRC)/$(NOMBRE_MAIN).c -o $(DIR_OUTPUT)/$(NOMBRE_MAIN) -pthread
+
 lista.o:
 	gcc -c $(DIR_SRC)/$(LIB)/lista.c -o $(DIR_OUTPUT)/lista.o
 

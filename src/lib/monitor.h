@@ -9,14 +9,15 @@ typedef struct {
 	int cuantos_hilos;
 	int cuantas_listas;
 
-	// Debe comenzar con la lista 1, la lista 0 es la mas corta (se hizo Quicksort previamente)
+	// Debe comenzar con la lista 0, la lista 0 es la mas corta (se hizo Quicksort previamente)
 	int lista_actual;
 
-	// Provee exclusion mutua para acceder la lista S
-	pthread_mutex_t semaforo_s;
 
 	// Provee exclusion mutua para acceder la lista S'
 	pthread_mutex_t semaforo_sprima;
+
+	// Provee exclusion mutua para incrementar el valor de cuantas hebras han terminado de procesar la sublista k
+	pthread_mutex_t semaforo_sublistak;
 
 	// Posicion actual en la lista S prima, sirve para ir agregando elementos al final de la lista (para saber donde va)
 	int pos_sprima;
@@ -31,6 +32,13 @@ typedef struct {
 	// Puntero a la lista S'. Por simplicidad, se deja como arreglo de enteros.
 	int* s_prima;
 
+	// Cuantos han terminado
+	int cuantos_han_terminado;
+
+	// Variable de condicion
+	pthread_cond_t todos_terminaron;
+
+
 } monitor;
 
 
@@ -44,12 +52,14 @@ void agregar_elemento_sprima(monitor* monitor, int numero);
 int quedan_listas(monitor* monitor);
 
 // El monitor crea una lista S'. Puede ser ejecutada por varios hilos, pero solo uno funciona, y los demas no hacen nada
-void monitor_crear_lista_s_prima(monitor* monitor, int tamano_lista);
+void monitor_crear_lista_s_prima(monitor* monitor);
 
 // Se le avisa al monitor que una hebra ha terminado de procesar una sublista K
 // Si la lista S nueva es vacia, retorna 0 (para avisarle a la hebra que termine)
 // El argumento es la lista S ya que debe conocerla, para asi liberar su memoria y poder asignarle los contenidos de S'
-int monitor_termine_de_procesar_una_sublista_k(lista* S);
+int monitor_termine_de_procesar_una_sublista_k(monitor* monitor, lista* S, int id_hilo);
+
+
 
 
 #endif

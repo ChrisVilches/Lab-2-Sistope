@@ -32,9 +32,6 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 // Constructor
 void inicializar_grupohilo(grupohilo* grupohilo, char* nombre_archivo, int threads_por_equipo);
 
-// Imprime una lista
-void mostrarlista(grupohilo* grupohilo, int indice);
-
 // Crea las listas
 void leer_listas(grupohilo* grupohilo, char* nombre_archivo);
 

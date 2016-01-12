@@ -19,7 +19,8 @@ void inicializar_grupohilo(grupohilo* grupohilo, char* nombre_archivo, int threa
 	grupohilo->num_threads = threads_por_equipo; 
     grupohilo->hilos = (pthread_t*) malloc(sizeof(pthread_t) * grupohilo->num_threads);
     grupohilo->tiempo_hebra = (double*) malloc(sizeof(double) * grupohilo->num_threads);
-    
+  
+
 
     leer_listas(grupohilo, nombre_archivo);
 
@@ -60,16 +61,20 @@ void* hebra_intersecta(void* arg){
 	
 	// Obtener la lista inicial, la mas corta
 	S = &grupohilo->conjunto_listas[0];
+	
 
 	while(quedan_listas(monitor))
 	{
 
-		// Pedirle al monitor que cree una lista S' vacia
-		// Si no se ha creado aun, el hilo queda esperando
-		monitor_crear_lista_s_prima(monitor, S->tamano);
+
+		//printf("S: ");
+		//mostrarlista(S);
 
 		// Preguntar al monitor cual es la siguiente lista K a examinar
 		K = &grupohilo->conjunto_listas[monitor->lista_actual];
+
+		//printf("K: ");
+		//mostrarlista(K);
 
 		// Calcular K/P
 		k_dividido_p = K->tamano/grupohilo->num_threads;
@@ -83,6 +88,8 @@ void* hebra_intersecta(void* arg){
 		// Calcular rangos
 		desde = (id_hilo * k_dividido_p);
 		hasta = desde + k_dividido_p - 1;
+
+		//printf("(hilo ID=%d) desde hasta %d %d\n", id_hilo, desde, hasta);
 
 		// Si "desde" esta dentro de la lista K, pero "hasta" esta fuera, entonces truncar "hasta"
 		if(desde < K->tamano && !(hasta < K->tamano)){
@@ -101,20 +108,28 @@ void* hebra_intersecta(void* arg){
 				// Buscar si existe S[i] en la lista K
 				if(existe_elemento_en_busquedabinaria(S->num[i], K)){
 					// Si esta, entonces agregarlo a la lista S'
-					//agregar_elemento_sprima(monitor, S->num[i]);
-					printf("SI NO SE HA CREADO LA LISTA S PRIMA, DA SEGMENTATION FAULT!!!\n");
+					agregar_elemento_sprima(monitor, S->num[i]);
 				}
 			}
 		}
 
+		/*printf("S PRIMA: ");
+		for(i=0; i<monitor->tamano_sprima; i++){
+			printf("%d ", monitor->s_prima[i]);
+		}
+		printf("\n");*/
+
 		// Avisarle al monitor que se termino de procesar una sublista K
 		// Retorna 0 si la lista S fue vacia (1 en caso contrario)
-		if(monitor_termine_de_procesar_una_sublista_k(S) == 0){
+		if(monitor_termine_de_procesar_una_sublista_k(monitor, S, id_hilo) == 0){
 			printf("Hilo termina ya que la lista de interseccion se detecto ser vacia.\n");
 			break;
 		}
 
 	}
+
+	printf("Lista final: ");
+	mostrarlista(S);
 
 	// Detener la cuenta del tiempo
 	end = clock();
@@ -142,6 +157,10 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 	// si no que solamente la posicion de las listas en el arreglo, usando el tamano de la
 	// lista como criterio)
 	quicksort_arreglo_listas(grupohilo->conjunto_listas, grupohilo->cuantas_listas);
+
+	// Crear altiro la lista S'
+	grupohilo->monitor.tamano_sprima = grupohilo->conjunto_listas[0].tamano;
+	grupohilo->monitor.s_prima = (int*) malloc(sizeof(int) * grupohilo->monitor.tamano_sprima);
 
 	// Enumerar cada hilo
 	for(i=0; i<grupohilo->num_threads; i++){
@@ -183,14 +202,6 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 
 }
 
-// Imprime una lista
-void mostrarlista(grupohilo* grupohilo, int indice){
-	int i;
-	for(i=0; i<grupohilo->conjunto_listas[indice].tamano; i++){
-		printf("%d ", grupohilo->conjunto_listas[indice].num[i]);
-	}
-	printf("\n");
-}
 
 // Crea las listas
 void leer_listas(grupohilo* grupohilo, char* nombre_archivo){

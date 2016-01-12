@@ -8,4 +8,8 @@ typedef struct {
 } lista;
 
 
+// Imprime una lista
+void mostrarlista(lista* lista);
+
+
 #endif
