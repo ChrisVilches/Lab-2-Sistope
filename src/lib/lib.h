@@ -14,7 +14,7 @@ void quicksort_lista(lista* lista);
 // En este caso se le puede pasar el limite inferior e inferior
 void quicksort_lista_limites(lista* lista, int lo, int hi);
 
-// Usando busqueda binaria determina si un valor esta en la lista
+// Booleano: Usando busqueda binaria (iterativa) determina si un valor esta en la lista
 int existe_elemento_en_busquedabinaria(int valor, lista* lista);
 
 #endif

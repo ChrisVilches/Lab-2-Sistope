@@ -2,6 +2,7 @@
 #define MONITOR_H_INCLUDED
 
 #include <pthread.h>
+#include "lista.h"
 
 typedef struct {
 
@@ -41,6 +42,14 @@ void agregar_elemento_sprima(monitor* monitor, int numero);
 
 // Booleano: Retorna verdadero si la quedan listas que examinar
 int quedan_listas(monitor* monitor);
+
+// El monitor crea una lista S'. Puede ser ejecutada por varios hilos, pero solo uno funciona, y los demas no hacen nada
+void monitor_crear_lista_s_prima(monitor* monitor, int tamano_lista);
+
+// Se le avisa al monitor que una hebra ha terminado de procesar una sublista K
+// Si la lista S nueva es vacia, retorna 0 (para avisarle a la hebra que termine)
+// El argumento es la lista S ya que debe conocerla, para asi liberar su memoria y poder asignarle los contenidos de S'
+int monitor_termine_de_procesar_una_sublista_k(lista* S);
 
 
 #endif

@@ -64,6 +64,10 @@ void* hebra_intersecta(void* arg){
 	while(quedan_listas(monitor))
 	{
 
+		// Pedirle al monitor que cree una lista S' vacia
+		// Si no se ha creado aun, el hilo queda esperando
+		monitor_crear_lista_s_prima(monitor, S->tamano);
+
 		// Preguntar al monitor cual es la siguiente lista K a examinar
 		K = &grupohilo->conjunto_listas[monitor->lista_actual];
 
@@ -97,89 +101,21 @@ void* hebra_intersecta(void* arg){
 				// Buscar si existe S[i] en la lista K
 				if(existe_elemento_en_busquedabinaria(S->num[i], K)){
 					// Si esta, entonces agregarlo a la lista S'
-					agregar_elemento_sprima(monitor, S->num[i]);
+					//agregar_elemento_sprima(monitor, S->num[i]);
 					printf("SI NO SE HA CREADO LA LISTA S PRIMA, DA SEGMENTATION FAULT!!!\n");
 				}
 			}
-
-
 		}
 
-		printf("Soy el hilo id=%d, mi rango es desde %d hasta %d\n", id_hilo, desde, hasta);
-		break;
-	}
-
-
-	/*
-	while(QUEDEN LISTAS (NO CUENTA LA PRIMERA, QUE ES LA MAS CORTA)){
-
-		(El monitor es quien proporciona las listas, es decir mantiene registro de cuantas quedan, etc)
-		(Por lo tanto, si sabe esa informacion, entonces tambien puede crear la S prima vacia cuando sea necesario)
-		(Aca el monitor debe crear una lista vacia S prima, la cual debe ser accedida usando MUTEX por cada hebra)
-		(La lista S prima tiene una longitud maxima de S (la mas corta), ya que es una interseccion... no puede ser mas larga)
-
-		--lista* K = la siguiente
-
-		--Desde = Obtener rango K/P
-
-		--Hasta = Obtener rango K/P
-
-		--Si "Desde" esta dentro de la lista, pero "Hasta" esta fuera, entonces truncar Hasta para que sea el ultimo elemento de la lista
-		// Si ambos estan fuera, podria ser el caso en que todos los elementos de la lista estan siendo ocupados
-		// por una hebra, y a esta hebra no le toca ningun numero de la lista
-
-
-		--if(Si "Desde" y "Hasta" estan dentro){
-
-			--quicksort la sublista K usando el rango como limites
-
-			--for(i=0; i<|S|; i++){
-			--	elemento_S = S[i]
-
-				// Si lo encontro
-				if(K.busquedabinaria(elemento_S) != -1){
-*/
-					//agregar_elemento_sprima(monitor, 4);
-
-					/*
-				}
-			}
-
-
-		} else {
-			// No esta dentro de la lista
-			// Si hay P = 100 hilos
-			// Y K=5
-			// K/P = [5/100] = 1
-			// Ocupando la ID de la hebra se puede obtener (multiplicando) el rango
-
-			// Ahora un caso donde hay mas elementos que hebras
-			// K = 1000
-			// P = 3
-			// K/P = [1000/3] = 334
-			// La hebra id=0 --> 0*334 hasta 0*334 + 333 = 0 hasta 333
-			// La hebra id=1 --> 1*334 hasta 1*334 + 333 = 334 hasta 667
-			// La hebra id=2 --> 2*334 hasta 2*334 + 333 = 668 hasta 1001
-
-			// Un caso medio
-			// K = 25
-			// P = 4
-			// K/P = [25/4] = [6.25] = 7
-			// La hebra id=0 --> 0*7 hasta 0*7 + 7 - 1 = 0 hasta 6
-			// La hebra id=1 --> 1*7 hasta 1*7 + 7 - 1 = 7 hasta 13
-			// La hebra id=2 --> 2*7 hasta 2*7 + 7 - 1 = 14 hasta 20
-			// La hebra id=3 --> 3*7 hasta 3*7 + 7 - 1 = 21 hasta 27
+		// Avisarle al monitor que se termino de procesar una sublista K
+		// Retorna 0 si la lista S fue vacia (1 en caso contrario)
+		if(monitor_termine_de_procesar_una_sublista_k(S) == 0){
+			printf("Hilo termina ya que la lista de interseccion se detecto ser vacia.\n");
+			break;
 		}
 
-
-		wait(esperar si aun las otras hebras no han terminado con su procesamiento)
-
-		
-		(Aca el monitor tiene que liberar la memoria de S y hacer S=S prima)
-		(Aca se puede dar cuenta si la lista S es vacia, en ese caso, se debe detener la ejecucion del algoritmo)
-
 	}
-*/
+
 	// Detener la cuenta del tiempo
 	end = clock();
 
@@ -218,6 +154,7 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 	// Crear hilos
 	for(i=0; i<grupohilo->num_threads; i++){
 		pthread_create(&grupohilo->hilos[i], NULL, hebra_intersecta, &argumento[i]);
+
 	}
 
 	// Juntar hilos

@@ -3,10 +3,25 @@
 
 int existe_elemento_en_busquedabinaria(int valor, lista* lista){
 
+    int l = 0;
+    int r = lista->tamano-1;
 
-    return 1;
+    while (l <= r)
+    {
+        int m = l + (r-l)/2;
+         
+        if (lista->num[m] == valor) 
+            return 1;  
+         
+        if (lista->num[m] < valor) 
+            l = m + 1;
+         
+        else 
+            r = m - 1;
+    }
+
+    return 0;
 }
-
 
 
 void intercambiar_listas(lista* listas, int i, int j){

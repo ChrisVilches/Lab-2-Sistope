@@ -26,6 +26,21 @@ void agregar_elemento_sprima(monitor* monitor, int numero){
 }
 
 
+void monitor_crear_lista_s_prima(monitor* monitor, int tamano_lista){
+
+}
+
+int monitor_termine_de_procesar_una_sublista_k(lista* S){
+
+	// Incrementar (usando mutex) una variable que sirva para ver cuantos han terminado
+	// Cuando todos terminan, se hace S=S'
+	// Se verifica cual es el tamano de S, si es 0, retorna 0
+
+	return 0;
+
+}
+
+
 int quedan_listas(monitor* monitor){
 	if(monitor->lista_actual < monitor->cuantas_listas){
 		return 1;
