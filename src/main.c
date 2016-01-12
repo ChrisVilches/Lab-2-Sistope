@@ -5,7 +5,7 @@
 #include <getopt.h>
 #include <sys/types.h>
 #include <pthread.h>
-#include "lib/listas.h"
+#include "lib/lista.h"
 #include "lib/grupohilo.h"
 #include "lib/lib.h"
 

@@ -2,7 +2,7 @@ DIR_OUTPUT = ./bin
 DIR_SRC = ./src
 NOMBRE_MAIN = main
 LIB = lib
-OBJ = $(DIR_OUTPUT)/listas.o $(DIR_OUTPUT)/grupohilo.o $(DIR_OUTPUT)/lib.o
+OBJ = $(DIR_OUTPUT)/lista.o $(DIR_OUTPUT)/grupohilo.o $(DIR_OUTPUT)/lib.o $(DIR_OUTPUT)/monitor.o
 
 all: dir main cleanobj
 
@@ -10,12 +10,12 @@ dir:
 # Crear el directorio "bin"
 	mkdir -p $(DIR_OUTPUT)
 
-main: lib.o monitor.o listas.o grupohilo.o
+main: lib.o monitor.o lista.o grupohilo.o
 # Compilar el main
 	gcc $(OBJ) $(DIR_SRC)/$(NOMBRE_MAIN).c -o $(DIR_OUTPUT)/$(NOMBRE_MAIN) -pthread
 
-listas.o:
-	gcc -c $(DIR_SRC)/$(LIB)/listas.c -o $(DIR_OUTPUT)/listas.o
+lista.o:
+	gcc -c $(DIR_SRC)/$(LIB)/lista.c -o $(DIR_OUTPUT)/lista.o
 
 grupohilo.o:
 	gcc -c $(DIR_SRC)/$(LIB)/grupohilo.c -o $(DIR_OUTPUT)/grupohilo.o

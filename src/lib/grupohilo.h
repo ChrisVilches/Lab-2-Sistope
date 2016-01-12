@@ -1,6 +1,6 @@
 #ifndef GRUPOHILO_H_INCLUDED
 #define GRUPOHILO_H_INCLUDED
-#include "listas.h"
+#include "lista.h"
 #include "monitor.h"
 #include <pthread.h>
 
@@ -10,7 +10,10 @@ typedef struct {
 	int num_threads;
 
 	// Cada grupo lee el archivo de texto, y mantiene su propia copia de las listas
-	listas conjunto_listas;
+	lista* conjunto_listas;
+
+	// Cantidad de listas
+	int cuantas_listas;
 
 	// El monitor que usara el equipo
 	monitor monitor;
@@ -28,5 +31,11 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 
 // Constructor
 void inicializar_grupohilo(grupohilo* grupohilo, char* nombre_archivo, int threads_por_equipo);
+
+// Imprime una lista
+void mostrarlista(grupohilo* grupohilo, int indice);
+
+// Crea las listas
+void leer_listas(grupohilo* grupohilo, char* nombre_archivo);
 
 #endif 
