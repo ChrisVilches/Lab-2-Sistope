@@ -11,5 +11,4 @@ Luego entrar a la carpeta ```bin``` y ejecutar
 Por ejemplo
 ```
 ./main -i a.txt -g 2 -h 2
-
 ```
