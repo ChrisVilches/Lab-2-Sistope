@@ -1,7 +1,9 @@
 # Lab 2 Sistope
 
 Compilacion con 
-```make```
+```
+make
+```
 Luego entrar a la carpeta ```bin``` y ejecutar
 ```
 ./main -i <nombre archivo> -g <cantidad grupos> -h <cantidad hebras por grupo>
