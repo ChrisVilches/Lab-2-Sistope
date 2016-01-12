@@ -1,1 +1,1 @@
-# Lab-2-Sistope
+# Lab 2 Sistope
