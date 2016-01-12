@@ -1,22 +1,21 @@
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
 #include <stdlib.h>
 #include "listas.h"
 
-using namespace std;
 
 // Metodo que muestra una lista del conjunto de listas
-void listas::mostrarlista(int indice){
+
+void mostrarlista(listas* conjunto_listas, int indice){
 	int i;
-	for(i=0; i<li[indice].tamano; i++){
-		cout << li[indice].num[i] << " ";
+	for(i=0; i<conjunto_listas->li[indice].tamano; i++){
+		printf("%d ", conjunto_listas->li[indice].num[i]);
 	}
-	cout << endl;
+	printf("\n");
 }
 
 
-listas::listas(char* nombre_archivo){
+void inicializar_listas(listas* listas_struct, char* nombre_archivo){
 
 	FILE* fp;
 	char line[4096];
@@ -31,7 +30,7 @@ listas::listas(char* nombre_archivo){
 
 	// Validar el archivo
 	if(fp == NULL){
-		cout << "Archivo no encontrado" << nombre_archivo << endl;
+		printf("Archivo no encontrado: %s\n", nombre_archivo);
 		abort();
 	}
 
@@ -41,8 +40,8 @@ listas::listas(char* nombre_archivo){
 	}
 	
 	// Crear el conjunto de listas
-	li = (lista*) malloc(sizeof(lista) * cantidad_listas);
-	cuantas_listas = cantidad_listas;
+	listas_struct->li = (lista*) malloc(sizeof(lista) * cantidad_listas);
+	listas_struct->cuantas_listas = cantidad_listas;
 
 	// Volver al inicio del archivo
 	rewind(fp);
@@ -66,7 +65,7 @@ listas::listas(char* nombre_archivo){
 		// Crear una nueva lista del tamano leido
 		lista nueva;
 		nueva.tamano = longitud_lista;
-		nueva.num = new int[longitud_lista];
+		nueva.num = (int*) malloc(sizeof(int) * longitud_lista);
 
 		// Cortar nuevamente la string, para poder agregar los numeros
 		token = strtok(line2, " ");
@@ -85,7 +84,7 @@ listas::listas(char* nombre_archivo){
 
 		// Guardar esta lista en la posicion adecuada
 		// en el conjunto de listas
-		li[i] = nueva;
+		listas_struct->li[i] = nueva;
 		i++;
 	}
 	fclose(fp);	

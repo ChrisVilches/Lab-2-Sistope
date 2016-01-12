@@ -1,7 +1,8 @@
 DIR_OUTPUT = ./bin
 DIR_SRC = ./src
 NOMBRE_MAIN = main
-OBJ = $(DIR_OUTPUT)/listas.o $(DIR_OUTPUT)/grupohilo.o
+LIB = lib
+OBJ = $(DIR_OUTPUT)/listas.o $(DIR_OUTPUT)/grupohilo.o $(DIR_OUTPUT)/lib.o
 
 all: dir main cleanobj
 
@@ -9,18 +10,21 @@ dir:
 # Crear el directorio "bin"
 	mkdir -p $(DIR_OUTPUT)
 
-main: monitor.o listas.o grupohilo.o
+main: lib.o monitor.o listas.o grupohilo.o
 # Compilar el main
-	g++ $(OBJ) $(DIR_SRC)/$(NOMBRE_MAIN).cpp -o $(DIR_OUTPUT)/$(NOMBRE_MAIN)
+	gcc $(OBJ) $(DIR_SRC)/$(NOMBRE_MAIN).c -o $(DIR_OUTPUT)/$(NOMBRE_MAIN) -pthread
 
 listas.o:
-	g++ -c $(DIR_SRC)/class/listas.cpp -o $(DIR_OUTPUT)/listas.o
+	gcc -c $(DIR_SRC)/$(LIB)/listas.c -o $(DIR_OUTPUT)/listas.o
 
 grupohilo.o:
-	g++ -c $(DIR_SRC)/class/grupohilo.cpp -o $(DIR_OUTPUT)/grupohilo.o
+	gcc -c $(DIR_SRC)/$(LIB)/grupohilo.c -o $(DIR_OUTPUT)/grupohilo.o
 
 monitor.o:
-	g++ -c $(DIR_SRC)/class/monitor.cpp -o $(DIR_OUTPUT)/monitor.o
+	gcc -c $(DIR_SRC)/$(LIB)/monitor.c -o $(DIR_OUTPUT)/monitor.o
+
+lib.o:
+	gcc -c $(DIR_SRC)/$(LIB)/lib.c -o $(DIR_OUTPUT)/lib.o
 
 clean:
 	rm -rf $(DIR_OUTPUT)/*
