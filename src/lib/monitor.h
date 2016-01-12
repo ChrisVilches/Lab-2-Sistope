@@ -27,15 +27,20 @@ typedef struct {
 	// Por eso, este valor no se inicializa al comienzo, si no que se va variando con el tiempo.
 	int tamano_sprima;
 
-	// Puntero a la lista S'
+	// Puntero a la lista S'. Por simplicidad, se deja como arreglo de enteros.
 	int* s_prima;
 
 } monitor;
 
 
+// Comienza el monitor con sus valores iniciales
 void inicializar_monitor(monitor* monitor, int cuantos_hilos, int cuantas_listas);
 
-void agregar_elemento_sprima(int numero);
+// Acceso exclusivo a la lista S' para agregar un elemento en ella
+void agregar_elemento_sprima(monitor* monitor, int numero);
+
+// Booleano: Retorna verdadero si la quedan listas que examinar
+int quedan_listas(monitor* monitor);
 
 
 #endif

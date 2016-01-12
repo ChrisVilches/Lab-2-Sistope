@@ -31,6 +31,8 @@ void inicializar_grupohilo(grupohilo* grupohilo, char* nombre_archivo, int threa
 // Hebra que se dedica a cooperar con su grupo, a intersectar las listas
 void* hebra_intersecta(void* arg){
 
+	int i;
+
 	// Datos para calcular el tiempo
 	clock_t begin, end;
 	double time_spent;	
@@ -43,16 +45,72 @@ void* hebra_intersecta(void* arg){
 	grupohilo* grupohilo = arg1.ptr_grupohilo;
 	monitor* monitor = &grupohilo->monitor;
 
-	// La lista S mas corta
+	// Las listas S y K
 	lista* S;
+	lista* K;
+
+	// Rangos "desde" y "hasta" para calcular cual sera la sublista K de esta hebra
+	int desde;
+	int hasta;
+	int k_dividido_p;
+	
 
 	// Comenzar a contar el tiempo
 	begin = clock();
 	
+	// Obtener la lista inicial, la mas corta
 	S = &grupohilo->conjunto_listas[0];
-	/*
-	
 
+	while(quedan_listas(monitor))
+	{
+
+		// Preguntar al monitor cual es la siguiente lista K a examinar
+		K = &grupohilo->conjunto_listas[monitor->lista_actual];
+
+		// Calcular K/P
+		k_dividido_p = K->tamano/grupohilo->num_threads;
+
+		// Si la division no es perfecta, significa que se aproxima al numero siguiente
+		// Esto es el equivalente a obtener [K/P]
+		if(K->tamano % grupohilo->num_threads != 0){
+			k_dividido_p++;
+		}
+
+		// Calcular rangos
+		desde = (id_hilo * k_dividido_p);
+		hasta = desde + k_dividido_p - 1;
+
+		// Si "desde" esta dentro de la lista K, pero "hasta" esta fuera, entonces truncar "hasta"
+		if(desde < K->tamano && !(hasta < K->tamano)){
+			hasta = K->tamano-1;
+		} 
+
+		// Si "desde" y "hasta" estan dentro de la lista, entonces tienen elementos con cuales trabajar
+		if(desde < K->tamano && hasta < K->tamano){
+
+			// Ordenar la sublista k
+			quicksort_lista_limites(K, desde, hasta);
+
+			// Para todo elemento de S
+			for(i=0; i<S->tamano; i++){				
+
+				// Buscar si existe S[i] en la lista K
+				if(existe_elemento_en_busquedabinaria(S->num[i], K)){
+					// Si esta, entonces agregarlo a la lista S'
+					agregar_elemento_sprima(monitor, S->num[i]);
+					printf("SI NO SE HA CREADO LA LISTA S PRIMA, DA SEGMENTATION FAULT!!!\n");
+				}
+			}
+
+
+		}
+
+		printf("Soy el hilo id=%d, mi rango es desde %d hasta %d\n", id_hilo, desde, hasta);
+		break;
+	}
+
+
+	/*
 	while(QUEDEN LISTAS (NO CUENTA LA PRIMERA, QUE ES LA MAS CORTA)){
 
 		(El monitor es quien proporciona las listas, es decir mantiene registro de cuantas quedan, etc)
@@ -60,30 +118,30 @@ void* hebra_intersecta(void* arg){
 		(Aca el monitor debe crear una lista vacia S prima, la cual debe ser accedida usando MUTEX por cada hebra)
 		(La lista S prima tiene una longitud maxima de S (la mas corta), ya que es una interseccion... no puede ser mas larga)
 
-		lista* K = la siguiente
+		--lista* K = la siguiente
 
-		Desde = Obtener rango K/P
+		--Desde = Obtener rango K/P
 
-		Hasta = Obtener rango K/P
+		--Hasta = Obtener rango K/P
 
-		Si "Desde" esta dentro de la lista, pero "Hasta" esta fuera, entonces truncar Hasta para que sea el ultimo elemento de la lista
+		--Si "Desde" esta dentro de la lista, pero "Hasta" esta fuera, entonces truncar Hasta para que sea el ultimo elemento de la lista
 		// Si ambos estan fuera, podria ser el caso en que todos los elementos de la lista estan siendo ocupados
 		// por una hebra, y a esta hebra no le toca ningun numero de la lista
 
 
-		if(Si "Desde" y "Hasta" estan dentro){
+		--if(Si "Desde" y "Hasta" estan dentro){
 
-			quicksort la sublista K usando el rango como limites
+			--quicksort la sublista K usando el rango como limites
 
-			for(i=0; i<|S|; i++){
-				elemento_S = S[i]
+			--for(i=0; i<|S|; i++){
+			--	elemento_S = S[i]
 
 				// Si lo encontro
 				if(K.busquedabinaria(elemento_S) != -1){
+*/
+					//agregar_elemento_sprima(monitor, 4);
 
-					(lock)
-					S_prima.agregar_acceso_exclusivo(elemento_S)
-					(unlock)
+					/*
 				}
 			}
 

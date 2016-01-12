@@ -1,6 +1,13 @@
 #include "lib.h"
 #include "lista.h"
 
+int existe_elemento_en_busquedabinaria(int valor, lista* lista){
+
+
+    return 1;
+}
+
+
 
 void intercambiar_listas(lista* listas, int i, int j){
 
