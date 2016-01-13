@@ -167,6 +167,7 @@ void* hebra_intersecta(void* arg){
 	grupohilo->tiempo_hebra[id_hilo] = time_spent;
 
 
+	return (void*) 0;
 }
 
 

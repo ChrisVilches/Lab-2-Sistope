@@ -92,8 +92,6 @@ void monitor_termine_de_procesar_una_sublista_k(monitor* monitor, lista* S, int 
 		// Volver a 0
 		monitor->cuantos_han_terminado = 0;
 
-		int i;
-
 		// Si la lista de interseccion tiene elementos
 		if(monitor->pos_sprima > 0){
 			// Preparar la siguiente lista

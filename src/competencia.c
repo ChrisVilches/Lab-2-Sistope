@@ -73,6 +73,8 @@ void* ejecutar_hilo_equipo(void* arg){
 	// Guardar promedio
 	promedios_tiempos[id_equipo] = promedio_tiempos;
 
+	return (void*) 0;
+
 }
 
 int main(int argc, char** argv){

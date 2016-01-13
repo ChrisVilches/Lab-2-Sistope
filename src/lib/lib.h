@@ -19,7 +19,7 @@ int existe_elemento_en_busquedabinaria(int valor, lista* lista, int inf, int sup
 
 // Entrega un arreglo con los tres mejores lugares (ID de los equipos)
 // Coloca -1 si no hay mas equipos
-int tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos);
+void tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos);
 
 
 #endif

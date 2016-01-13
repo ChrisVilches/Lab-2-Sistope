@@ -2,7 +2,7 @@
 #include "lista.h"
 #include <stdio.h>
 
-int tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos){
+void tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos){
 
     int arreglo_ids[cantidad_total_equipos];
     double tiempos_copia[cantidad_total_equipos]; // Crear copia de los tiempos
