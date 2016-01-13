@@ -4,6 +4,8 @@
 #include <string.h>
 #include "grupohilo.h"
 #include "lib.h"
+#include <pthread.h>
+
 
 
 
@@ -74,6 +76,7 @@ void* hebra_intersecta(void* arg){
 	int k_dividido_p;
 	
 
+
 	// Comenzar a contar el tiempo
 	begin = clock();
 	
@@ -83,6 +86,7 @@ void* hebra_intersecta(void* arg){
 
 	while(quedan_listas(monitor) && comprobar_interseccion_no_vacia(monitor))
 	{
+
 
 		K = &grupohilo->conjunto_listas[monitor->lista_actual];
 
@@ -128,10 +132,11 @@ void* hebra_intersecta(void* arg){
 				}
 			}
 		}
-
-
+		
+		
 
 		monitor_termine_de_procesar_una_sublista_k(monitor, S, id_hilo);
+
 
 	}
 
@@ -139,8 +144,9 @@ void* hebra_intersecta(void* arg){
 	end = clock();
 
 
+
 	// Escribir el resultado en una lista (solo una hebra de un grupo lo puede hacer)
-	if(id_hilo == 0 && grupohilo->id_grupo == 0){
+	if(id_hilo == 0 && grupohilo->id_grupo == 0 && monitor->interseccion_no_vacia == 1){
 
 		fp_resultado = fopen("resultado.temp", "w");
 
@@ -148,6 +154,7 @@ void* hebra_intersecta(void* arg){
 			fprintf(fp_resultado, "%d ", S->num[i]);
 		}
 
+		// Entrega un error
 		//free(S->num);
 
 		fclose(fp_resultado);		
@@ -165,7 +172,7 @@ void* hebra_intersecta(void* arg){
 
 void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio_tiempos, double* mejor_tiempo_hebra){
 
-
+	
 	int i;
 	int min;
 	double suma;
@@ -242,6 +249,8 @@ void leer_listas(grupohilo* grupohilo, char* nombre_archivo){
 	int i = 0;
 	int j;
 
+	pthread_mutex_lock(&leer_archivos_mutex);
+
 	fp = fopen(nombre_archivo, "r");
 
 	// Validar el archivo
@@ -304,4 +313,6 @@ void leer_listas(grupohilo* grupohilo, char* nombre_archivo){
 		i++;
 	}
 	fclose(fp);	
+
+	pthread_mutex_unlock(&leer_archivos_mutex);
 }

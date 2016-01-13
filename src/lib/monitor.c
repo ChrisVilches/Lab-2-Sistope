@@ -116,7 +116,6 @@ void monitor_termine_de_procesar_una_sublista_k(monitor* monitor, lista* S, int 
 			monitor->interseccion_no_vacia = 0;
 		}
 
-				
 
 		// Signal la variable de condicion
 		pthread_cond_broadcast(&monitor->todos_terminaron);

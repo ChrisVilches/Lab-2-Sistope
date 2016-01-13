@@ -1,6 +1,6 @@
 #include "lib.h"
 #include "lista.h"
-
+#include <stdio.h>
 
 int tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos){
 
@@ -43,8 +43,7 @@ int tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, d
             j--;
         }
     }
-
-
+    
     for(i=0; i<cantidad_total_equipos && i<3; i++){
         arreglo_a_rellenar[i] = arreglo_ids[i];
     }    

@@ -136,6 +136,9 @@ int main(int argc, char** argv){
 	// Crear las IDs de los equipos
 	id_equipos = (int*) malloc(sizeof(int) * cantidad_equipos);
 
+
+	pthread_mutex_init(&leer_archivos_mutex, NULL);
+
 	// Enumerar las ID desde 0 hasta N-1 (cantidad de equipos)
 	for(i=0; i<cantidad_equipos; i++){
 		id_equipos[i] = i;
@@ -169,7 +172,7 @@ int main(int argc, char** argv){
 		if(tres_mejores[i] == -1){
 			break;
 		}
-		printf("Lugar #%d, equipo ID=%d (tiempo %f)\n", i+1, tres_mejores[i], tiempos_equipos[i]);
+		printf("Lugar #%d, equipo ID=%d (tiempo %f)\n", i+1, tres_mejores[i], tiempos_equipos[tres_mejores[i]]);
 	}
 
 
@@ -200,11 +203,12 @@ int main(int argc, char** argv){
 	printf("El grupo mas rapido fue %d. El promedio de tiempo de sus hebras es %f\n", grupo_mas_eficiente, promedios_tiempos[grupo_mas_eficiente]);
 
 
+	// Leer los resultados (fueron escritos a un archivo)
 	fp_resultado = fopen("resultado.temp", "r");
 	if(fp_resultado == NULL){
 
 		// No se leyo la lista
-		printf("Lista interseccion: []");
+		printf("Lista interseccion: []\n");
 	} else {
 		// Se leyo la lista
 
@@ -215,6 +219,8 @@ int main(int argc, char** argv){
 		printf("]\n");
 		
 		fclose(fp_resultado);
+
+		// Eliminar el archivo temporal
 		remove("resultado.temp");
 	}
 	

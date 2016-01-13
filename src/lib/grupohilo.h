@@ -4,6 +4,8 @@
 #include "monitor.h"
 #include <pthread.h>
 
+pthread_mutex_t leer_archivos_mutex;
+
 typedef struct {
 
 	// Id del grupo
