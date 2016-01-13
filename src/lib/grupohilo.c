@@ -4,6 +4,7 @@
 #include <string.h>
 #include "grupohilo.h"
 #include "lib.h"
+#include <pthread.h>
 
 
 struct argumento{
@@ -43,6 +44,10 @@ void destruir_grupohilo(grupohilo* grupohilo){
 }
 
 
+
+pthread_mutex_t MUTEX_BORRAR;
+
+
 // Hebra que se dedica a cooperar con su grupo, a intersectar las listas
 void* hebra_intersecta(void* arg){
 
@@ -78,20 +83,19 @@ void* hebra_intersecta(void* arg){
 	S = &grupohilo->conjunto_listas[0];
 	
 
-	while(quedan_listas(monitor))
+	while(quedan_listas(monitor) && comprobar_interseccion_no_vacia(monitor))
 	{
-		break;
 
-		//printf("S: ");
-		//mostrarlista(S);
-
-		// Preguntar al monitor cual es la siguiente lista K a examinar
 		K = &grupohilo->conjunto_listas[monitor->lista_actual];
 
-		//printf("K: ");
-		//mostrarlista(K);
+		//pthread_mutex_lock(&MUTEX_BORRAR);
 
-		// Calcular K/P
+		if(id_hilo == 0){
+			mostrarlista(S); printf(" (tamano = %d)\n", S->tamano);
+			mostrarlista(K); printf(" (tamano = %d)\n", K->tamano);
+		}
+		
+
 		k_dividido_p = K->tamano/grupohilo->num_threads;
 
 		// Si la division no es perfecta, significa que se aproxima al numero siguiente
@@ -104,14 +108,17 @@ void* hebra_intersecta(void* arg){
 		desde = (id_hilo * k_dividido_p);
 		hasta = desde + k_dividido_p - 1;
 
-		printf("(hilo ID=%d) desde hasta %d %d\n", id_hilo, desde, hasta);
-
+		// Normalizar los rangos.
 		// Si "desde" esta dentro de la lista K, pero "hasta" esta fuera, entonces truncar "hasta"
 		if(desde < K->tamano && !(hasta < K->tamano)){
 			hasta = K->tamano-1;
 		} 
 
-		// Si "desde" y "hasta" estan dentro de la lista, entonces tienen elementos con cuales trabajar
+		// Si el rango esta dentro de la lista K, entonces procesar
+		// Si el rango esta fuera, entonces no hacer nada
+		// (Esto pasa cuando hay por ejemplo mas hebras que elementos,
+		// como la division debe aproximarse, ocurre que algunas hebras no tendra
+		// que trabajar)
 		if(desde < K->tamano && hasta < K->tamano){
 
 			// Ordenar la sublista k
@@ -121,34 +128,33 @@ void* hebra_intersecta(void* arg){
 			for(i=0; i<S->tamano; i++){				
 
 				// Buscar si existe S[i] en la lista K
-				if(existe_elemento_en_busquedabinaria(S->num[i], K)){
+				if(existe_elemento_en_busquedabinaria(S->num[i], K, desde, hasta)){
 
-					printf("\n\n(hilo ID=%d) El elemento %d existe en la lista: ", id_hilo, S->num[i]);
-					mostrarlista(K);
+					//printf("\n-----(hilo ID=%d) El elemento %d existe en la lista: ", id_hilo, S->num[i]);
+					//mostrarlista(K);
 
 					// Si esta, entonces agregarlo a la lista S'
+					printf("Voy a intentar agregar\n");
 					agregar_elemento_sprima(monitor, S->num[i]);
 				}
 			}
 		}
 
-		printf("S PRIMA: ");
-		for(i=0; i<monitor->tamano_sprima; i++){
-			printf("%d ", monitor->s_prima[i]);
-		}
+		printf("(hilo ID=%d) desde hasta %d %d .. ", id_hilo, desde, hasta);
+
+		mostrarlista(K);
 		printf("\n");
 
-		// Avisarle al monitor que se termino de procesar una sublista K
-		// Retorna 0 si la lista S fue vacia (1 en caso contrario)
-		if(monitor_termine_de_procesar_una_sublista_k(monitor, S, id_hilo) == 0){
-			printf("Hilo termina ya que la lista de interseccion se detecto ser vacia.\n");
-			break;
-		}
+		//pthread_mutex_unlock(&MUTEX_BORRAR);
+
+
+		monitor_termine_de_procesar_una_sublista_k(monitor, S, id_hilo);
 
 	}
 
 	// Detener la cuenta del tiempo
 	end = clock();
+
 
 	// Escribir el resultado en una lista (solo una hebra de un grupo lo puede hacer)
 	if(id_hilo == 0 && grupohilo->id_grupo == 0){
@@ -172,10 +178,12 @@ void* hebra_intersecta(void* arg){
 
 
 void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio_tiempos, double* mejor_tiempo_hebra){
+pthread_mutex_init(&MUTEX_BORRAR, NULL);
 
 	int i;
 	int min;
 	double suma;
+
 
 	// Crear las ID para cada hilo y ademas guardar el puntero al grupo
 	struct argumento* argumento = (struct argumento*) malloc(sizeof(struct argumento) * grupohilo->num_threads);
@@ -186,8 +194,8 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 	quicksort_arreglo_listas(grupohilo->conjunto_listas, grupohilo->cuantas_listas);
 
 	// Crear altiro la lista S'
-	grupohilo->monitor.tamano_sprima = grupohilo->conjunto_listas[0].tamano;
-	grupohilo->monitor.s_prima = (int*) malloc(sizeof(int) * grupohilo->monitor.tamano_sprima);
+	monitor_crear_lista_s_prima(&grupohilo->monitor, grupohilo->conjunto_listas[0].tamano);
+
 
 	// Enumerar cada hilo
 	for(i=0; i<grupohilo->num_threads; i++){

@@ -52,10 +52,10 @@ int tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, d
 }
 
 
-int existe_elemento_en_busquedabinaria(int valor, lista* lista){
+int existe_elemento_en_busquedabinaria(int valor, lista* lista, int inf, int sup){
 
-    int l = 0;
-    int r = lista->tamano-1;
+    int l = inf;
+    int r = sup;
 
     while (l <= r)
     {
