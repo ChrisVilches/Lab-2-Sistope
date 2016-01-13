@@ -11,6 +11,7 @@ void inicializar_monitor(monitor* monitor, int cuantos_hilos, int cuantas_listas
 	monitor->pos_sprima = 0;
 	monitor->cuantos_han_terminado = 0;
 	monitor->s_prima = NULL;
+	monitor->interseccion_vacia = 0;
 
 	pthread_mutex_init(&monitor->semaforo_sublistak, NULL);
 	pthread_mutex_init(&monitor->semaforo_sprima, NULL);
@@ -31,6 +32,8 @@ void agregar_elemento_sprima(monitor* monitor, int numero){
 	monitor->s_prima[monitor->pos_sprima] = numero;
 	monitor->pos_sprima++;
 
+	printf("POS S prima es %d\n", monitor->pos_sprima);
+
 	pthread_mutex_unlock(&monitor->semaforo_sprima);
 
 }
@@ -46,9 +49,11 @@ void monitor_crear_lista_s_prima(monitor* monitor){
 		return;
 	}
 
-	monitor->tamano_sprima = monitor->pos_sprima;
-	monitor->s_prima = (int*) malloc(sizeof(int) * monitor->tamano_sprima);
+	monitor->tamano_sprima = monitor->pos_sprima;	
 	monitor->pos_sprima = 0;
+	monitor->s_prima = (int*) malloc(sizeof(int) * monitor->tamano_sprima);
+
+	printf("Se creo una nueva matriz S prima con tamano %d\n", monitor->tamano_sprima);
 
 	pthread_mutex_unlock(&monitor->semaforo_sprima);
 
@@ -62,16 +67,16 @@ int monitor_termine_de_procesar_una_sublista_k(monitor* monitor, lista* S, int i
 	// Cuando todos terminan, se hace S=S'
 	// Se verifica cual es el tamano de S, si es 0, retorna 0
 
-	printf("(ID=%d) mutex lock A\n", id_hilo);
+	//printf("(ID=%d) mutex lock A\n", id_hilo);
 	pthread_mutex_lock(&monitor->semaforo_sublistak);
 
-	printf("(ID=%d) Atraveso el mutex (creado en A)\n", id_hilo);
+	//printf("(ID=%d) Atraveso el mutex (creado en A)\n", id_hilo);
 
 	monitor->cuantos_han_terminado++;
 
 	// Si ya todos terminaron
 	if(monitor->cuantos_han_terminado == monitor->cuantos_hilos){
-		printf("(ID=%d) Todos terminaron\n", id_hilo);
+		//printf("(ID=%d) Todos terminaron\n", id_hilo);
 		// Liberar la memoria de S
 		free(S->num);
 
@@ -85,7 +90,8 @@ int monitor_termine_de_procesar_una_sublista_k(monitor* monitor, lista* S, int i
 
 		// La interseccion tiene longitud 0?
 		if(monitor->pos_sprima == 0){
-			printf("(ID=%d) mutex unlock B\n", id_hilo);
+			monitor->interseccion_vacia = 1;
+			//printf("(ID=%d) mutex unlock B\n", id_hilo);
 			pthread_cond_broadcast(&monitor->todos_terminaron);
 			pthread_mutex_unlock(&monitor->semaforo_sublistak);
 			return 0;
@@ -100,19 +106,29 @@ int monitor_termine_de_procesar_una_sublista_k(monitor* monitor, lista* S, int i
 		monitor->lista_actual++;
 		monitor->cuantos_han_terminado = 0;
 
-		printf("(ID=%d) broadcast C\n", id_hilo);
+		//printf("(ID=%d) broadcast C\n", id_hilo);
 		pthread_cond_broadcast(&monitor->todos_terminaron);
 
-		printf("(ID=%d) mutex unlock D\n", id_hilo);
+		//printf("(ID=%d) mutex unlock D\n", id_hilo);
 		pthread_mutex_unlock(&monitor->semaforo_sublistak);
 		return 1;
 	}
-	else
-		printf("(ID=%d) Aun no todos terminan\n", id_hilo);
+	else{
+		//printf("(ID=%d) Aun no todos terminan\n", id_hilo);
 
-	printf("(ID=%d) mutex unlock E (cond wait)\n", id_hilo);
+		// Si la interseccion es vacia, quiere decir que un hilo ya aborto la ejecucion
+		// Por lo tanto nunca van a poder "terminar todos", por lo que produciria deadlock
+		// si no se pone
+		if(monitor->interseccion_vacia == 1){
+			pthread_cond_broadcast(&monitor->todos_terminaron);
+			pthread_mutex_unlock(&monitor->semaforo_sublistak);
+			return 0;
+		}
+	}
+
+	//printf("(ID=%d) mutex unlock E (cond wait)\n", id_hilo);
 	pthread_cond_wait(&monitor->todos_terminaron, &monitor->semaforo_sublistak);
-	printf("(ID=%d) Salir del cond wait F\n", id_hilo);
+	//printf("(ID=%d) Salir del cond wait F\n", id_hilo);
 
 	pthread_mutex_unlock(&monitor->semaforo_sublistak);
 

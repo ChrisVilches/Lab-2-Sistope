@@ -89,7 +89,7 @@ void* hebra_intersecta(void* arg){
 		desde = (id_hilo * k_dividido_p);
 		hasta = desde + k_dividido_p - 1;
 
-		//printf("(hilo ID=%d) desde hasta %d %d\n", id_hilo, desde, hasta);
+		printf("(hilo ID=%d) desde hasta %d %d\n", id_hilo, desde, hasta);
 
 		// Si "desde" esta dentro de la lista K, pero "hasta" esta fuera, entonces truncar "hasta"
 		if(desde < K->tamano && !(hasta < K->tamano)){
@@ -107,17 +107,21 @@ void* hebra_intersecta(void* arg){
 
 				// Buscar si existe S[i] en la lista K
 				if(existe_elemento_en_busquedabinaria(S->num[i], K)){
+
+					printf("\n\n(hilo ID=%d) El elemento %d existe en la lista: ", id_hilo, S->num[i]);
+					mostrarlista(K);
+
 					// Si esta, entonces agregarlo a la lista S'
 					agregar_elemento_sprima(monitor, S->num[i]);
 				}
 			}
 		}
 
-		/*printf("S PRIMA: ");
+		printf("S PRIMA: ");
 		for(i=0; i<monitor->tamano_sprima; i++){
 			printf("%d ", monitor->s_prima[i]);
 		}
-		printf("\n");*/
+		printf("\n");
 
 		// Avisarle al monitor que se termino de procesar una sublista K
 		// Retorna 0 si la lista S fue vacia (1 en caso contrario)
@@ -128,7 +132,7 @@ void* hebra_intersecta(void* arg){
 
 	}
 
-	printf("Lista final: ");
+	printf("Lista final (tamano = %d = %d): ", S->tamano, monitor->tamano_sprima);
 	mostrarlista(S);
 
 	// Detener la cuenta del tiempo

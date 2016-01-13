@@ -38,6 +38,9 @@ typedef struct {
 	// Variable de condicion
 	pthread_cond_t todos_terminaron;
 
+	// Interseccion es vacia?
+	int interseccion_vacia;
+
 
 } monitor;
 
