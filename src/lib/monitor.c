@@ -39,7 +39,6 @@ void agregar_elemento_sprima(monitor* monitor, int numero){
 
 		monitor->s_prima = (int*) realloc(monitor->s_prima, sizeof(int) * monitor->tamano_sprima);
 
-		printf("HUBO UN REALLOC!!! ahora es tamano %d\n", monitor->tamano_sprima);
 		if(monitor->s_prima == NULL){
 			printf("Hubo un error al hacer realloc.\n");
 			abort();
@@ -93,17 +92,7 @@ void monitor_termine_de_procesar_una_sublista_k(monitor* monitor, lista* S, int 
 		// Volver a 0
 		monitor->cuantos_han_terminado = 0;
 
-
-		//printf("********************* Todos terminaron, siguiente ronda *******************\n");
 		int i;
-		/*for(i=0; i<monitor->pos_sprima; i++){
-			printf("%d ", monitor->s_prima[i]);
-		}*/
-		printf(" (tamano = %d)\n", monitor->pos_sprima);
-		printf("*************************** Lista %d/%d **************************\n", monitor->lista_actual, monitor->cuantas_listas);
-		printf("*************************** La lista S' (arriba) **************************\n");
-
-
 
 		// Si la lista de interseccion tiene elementos
 		if(monitor->pos_sprima > 0){

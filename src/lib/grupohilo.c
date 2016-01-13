@@ -4,7 +4,7 @@
 #include <string.h>
 #include "grupohilo.h"
 #include "lib.h"
-#include <pthread.h>
+
 
 
 struct argumento{
@@ -44,8 +44,6 @@ void destruir_grupohilo(grupohilo* grupohilo){
 }
 
 
-
-pthread_mutex_t MUTEX_BORRAR;
 
 
 // Hebra que se dedica a cooperar con su grupo, a intersectar las listas
@@ -88,13 +86,6 @@ void* hebra_intersecta(void* arg){
 
 		K = &grupohilo->conjunto_listas[monitor->lista_actual];
 
-		//pthread_mutex_lock(&MUTEX_BORRAR);
-
-		if(id_hilo == 0){
-			mostrarlista(S); printf(" (tamano = %d)\n", S->tamano);
-			mostrarlista(K); printf(" (tamano = %d)\n", K->tamano);
-		}
-		
 
 		k_dividido_p = K->tamano/grupohilo->num_threads;
 
@@ -130,22 +121,14 @@ void* hebra_intersecta(void* arg){
 				// Buscar si existe S[i] en la lista K
 				if(existe_elemento_en_busquedabinaria(S->num[i], K, desde, hasta)){
 
-					//printf("\n-----(hilo ID=%d) El elemento %d existe en la lista: ", id_hilo, S->num[i]);
-					//mostrarlista(K);
 
 					// Si esta, entonces agregarlo a la lista S'
-					printf("Voy a intentar agregar\n");
+
 					agregar_elemento_sprima(monitor, S->num[i]);
 				}
 			}
 		}
 
-		printf("(hilo ID=%d) desde hasta %d %d .. ", id_hilo, desde, hasta);
-
-		mostrarlista(K);
-		printf("\n");
-
-		//pthread_mutex_unlock(&MUTEX_BORRAR);
 
 
 		monitor_termine_de_procesar_una_sublista_k(monitor, S, id_hilo);
@@ -158,11 +141,14 @@ void* hebra_intersecta(void* arg){
 
 	// Escribir el resultado en una lista (solo una hebra de un grupo lo puede hacer)
 	if(id_hilo == 0 && grupohilo->id_grupo == 0){
+
 		fp_resultado = fopen("resultado.temp", "w");
 
 		for(i=0; i<S->tamano; i++){
 			fprintf(fp_resultado, "%d ", S->num[i]);
 		}
+
+		//free(S->num);
 
 		fclose(fp_resultado);		
 	}
@@ -178,7 +164,7 @@ void* hebra_intersecta(void* arg){
 
 
 void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio_tiempos, double* mejor_tiempo_hebra){
-pthread_mutex_init(&MUTEX_BORRAR, NULL);
+
 
 	int i;
 	int min;
@@ -236,6 +222,9 @@ pthread_mutex_init(&MUTEX_BORRAR, NULL);
 	*promedio_tiempos = suma/grupohilo->num_threads;
 	*mejor_hebra = min;
 	*mejor_tiempo_hebra = grupohilo->tiempo_hebra[min];
+
+
+	free(argumento);
 
 
 }
