@@ -6,9 +6,9 @@ make
 ```
 Luego entrar a la carpeta ```bin``` y ejecutar
 ```
-./main -i <nombre archivo> -g <cantidad grupos> -h <cantidad hebras por grupo>
+./competencia -i <nombre archivo> -g <cantidad grupos> -h <cantidad hebras por grupo>
 ```
 Por ejemplo
 ```
-./main -i a.txt -g 2 -h 2
+./competencia -i a.txt -g 2 -h 2
 ```

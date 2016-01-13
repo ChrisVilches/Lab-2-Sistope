@@ -1,6 +1,6 @@
 DIR_OUTPUT = ./bin
 DIR_SRC = ./src
-NOMBRE_MAIN = main
+NOMBRE_MAIN = competencia
 LIB = lib
 OBJ = $(DIR_OUTPUT)/lista.o $(DIR_OUTPUT)/grupohilo.o $(DIR_OUTPUT)/lib.o $(DIR_OUTPUT)/monitor.o
 
