@@ -1,6 +1,57 @@
 #include "lib.h"
 #include "lista.h"
 
+
+int tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos){
+
+    int arreglo_ids[cantidad_total_equipos];
+    double tiempos_copia[cantidad_total_equipos]; // Crear copia de los tiempos
+    int i;
+    int j;
+
+    double tiempo_temp;
+    int id_temp;
+
+    // Rellenar con valores por defecto
+    arreglo_a_rellenar[0] = -1;
+    arreglo_a_rellenar[1] = -1;
+    arreglo_a_rellenar[2] = -1;
+
+    // Enumerar las IDs
+    for(i=0; i<cantidad_total_equipos; i++){
+        arreglo_ids[i] = i;
+    }
+
+    // Crear copia de los tiempos
+    for(i=0; i<cantidad_total_equipos; i++){
+        tiempos_copia[i] = tiempos[i];
+    }
+
+
+    // Algoritmo de ordenamiento por insercion
+    for(i=0; i<cantidad_total_equipos; i++){
+        j=i;
+        while(j>0 && tiempos_copia[j-1]>tiempos_copia[j]){
+            tiempo_temp = tiempos_copia[j];
+            id_temp = arreglo_ids[j];
+
+            arreglo_ids[j] = arreglo_ids[j-1];
+            tiempos_copia[j] = tiempos_copia[j-1];
+
+            arreglo_ids[j-1] = id_temp;
+            tiempos_copia[j-1] = tiempo_temp;
+            j--;
+        }
+    }
+
+
+    for(i=0; i<cantidad_total_equipos && i<3; i++){
+        arreglo_a_rellenar[i] = arreglo_ids[i];
+    }    
+
+}
+
+
 int existe_elemento_en_busquedabinaria(int valor, lista* lista){
 
     int l = 0;

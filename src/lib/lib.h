@@ -17,4 +17,9 @@ void quicksort_lista_limites(lista* lista, int lo, int hi);
 // Booleano: Usando busqueda binaria (iterativa) determina si un valor esta en la lista
 int existe_elemento_en_busquedabinaria(int valor, lista* lista);
 
+// Entrega un arreglo con los tres mejores lugares (ID de los equipos)
+// Coloca -1 si no hay mas equipos
+int tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos);
+
+
 #endif

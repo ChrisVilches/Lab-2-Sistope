@@ -18,6 +18,7 @@ int threads_por_equipo = 0;
 char* nombre_archivo;
 double* tiempos_equipos;	// Sirve para que cada equipo guarde sus tiempos (para que luego el main los vea todos)
 int* mejor_hebra;			// Cada equipo almacenara en este arreglo (posicion del equipo), la mejor hebra de su equipo
+double* mejor_hebra_tiempo;	// Almacena el tiempo de la mejor hebra
 double* promedios_tiempos;	// Cada equipo guarda aca el promedio de los tiempos de todas sus hebras
 
 
@@ -32,12 +33,14 @@ void* ejecutar_hilo_equipo(void* arg){
 	clock_t begin, end;
 	double time_spent;
 	int id_mejor_hebra_intersecta;
+	double mejor_tiempo_hebra;
 	double promedio_tiempos;
+	
 
 	// Se crea el grupo
 	grupohilo equipo;
 
-	inicializar_grupohilo(&equipo, nombre_archivo, threads_por_equipo);
+	inicializar_grupohilo(&equipo, nombre_archivo, threads_por_equipo, id_equipo);
 
 
 	// Comenzar a contar el tiempo
@@ -47,10 +50,13 @@ void* ejecutar_hilo_equipo(void* arg){
 	// Dado que la funcion intersectar_listas provee los mecanismos de Join, y crear hebras
 	// no es necesario hacerlo aca
 
-	intersectar_listas(&equipo, &id_mejor_hebra_intersecta, &promedio_tiempos);		
+	intersectar_listas(&equipo, &id_mejor_hebra_intersecta, &promedio_tiempos, &mejor_tiempo_hebra);		
 
 	// Detener la cuenta del tiempo
 	end = clock();
+
+	// Liberar memoria del grupo
+	destruir_grupohilo(&equipo);
 
 	// Obtener cuanto tiempo tardo
 	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
@@ -60,6 +66,9 @@ void* ejecutar_hilo_equipo(void* arg){
 
 	// Guardar en el arreglo cual fue la mejor hebra de este equipo
 	mejor_hebra[id_equipo] = id_mejor_hebra_intersecta;
+
+	// ... y guardar su tiempo
+	mejor_hebra_tiempo[id_equipo] = mejor_tiempo_hebra;
 
 	// Guardar promedio
 	promedios_tiempos[id_equipo] = promedio_tiempos;
@@ -72,6 +81,11 @@ int main(int argc, char** argv){
 	int i;
 	pthread_t* grupos_hilos;
 	int* id_equipos;
+	int hebra_mas_eficiente;
+	int grupo_mas_eficiente;
+	int tres_mejores[3];	
+	FILE* fp_resultado;
+	char leido;
 
 	int flagarg1 = 0;
 	int flagarg2 = 0;
@@ -110,6 +124,9 @@ int main(int argc, char** argv){
 	// Arreglo donde cada equipo almacenara su mejor hebra
 	mejor_hebra = (int*) malloc(sizeof(int) * cantidad_equipos);
 
+	// Aca van los tiempos de las mejores hebras de cada grupo
+	mejor_hebra_tiempo = (double*) malloc(sizeof(double) * cantidad_equipos);
+
 	// Promedios de las hebras de cada grupo (tiempos)
 	promedios_tiempos = (double*) malloc(sizeof(double) * cantidad_equipos);
 
@@ -128,6 +145,8 @@ int main(int argc, char** argv){
 	for(i=0; i<cantidad_equipos; i++){
 		pthread_create(&grupos_hilos[i], NULL, ejecutar_hilo_equipo, &id_equipos[i]);
 	}
+
+	
 	
 	/*
 	*
@@ -140,15 +159,75 @@ int main(int argc, char** argv){
 		pthread_join(grupos_hilos[i], NULL);
 	}
 
-	printf("Fin de la competencia\n");
+	printf("\n\n**********Fin de la competencia*************\n\n");
 
-	for(i=0; i<cantidad_equipos; i++){
-		printf("Equipo #%d: %f (mejor hebra id %d, promedio tiempo %f)\n", i, tiempos_equipos[i], mejor_hebra[i], promedios_tiempos[i]);
+	// Encontrar los tres mejores lugares
+	tres_primeros_lugares(tres_mejores, cantidad_equipos, tiempos_equipos);
+
+	// Mostrar los tres mejores
+	for(i=0; i<3; i++){
+		if(tres_mejores[i] == -1){
+			break;
+		}
+		printf("Lugar #%d, equipo ID=%d (tiempo %f)\n", i+1, tres_mejores[i], tiempos_equipos[i]);
 	}
+
+
+	// Encontrar la hebra mas eficiente
+	hebra_mas_eficiente = 0;
+
+	for(i=1; i<cantidad_equipos; i++){
+		if(mejor_hebra_tiempo[i] < mejor_hebra_tiempo[hebra_mas_eficiente]){
+			hebra_mas_eficiente = i;
+		}
+	}
+
+	// Encontrar el grupo que en promedio fue mas rapido
+	grupo_mas_eficiente = 0;
+
+	for(i=1; i<cantidad_equipos; i++){
+		if(promedios_tiempos[i] < promedios_tiempos[grupo_mas_eficiente]){
+			grupo_mas_eficiente = i;
+		}
+	}
+
+
+
+	// La hebra mas eficiente
+	printf("La hebra mas rapida fue la hebra %d, del equipo %d (tiempo %f)\n", mejor_hebra[hebra_mas_eficiente], hebra_mas_eficiente, mejor_hebra_tiempo[hebra_mas_eficiente]);
+
+	// El grupo que en promedio fue mas rapido
+	printf("El grupo mas rapido fue %d. El promedio de tiempo de sus hebras es %f\n", grupo_mas_eficiente, promedios_tiempos[grupo_mas_eficiente]);
+
+
+	fp_resultado = fopen("resultado.temp", "r");
+	if(fp_resultado == NULL){
+
+		// No se leyo la lista
+		printf("Lista interseccion: []");
+	} else {
+		// Se leyo la lista
+
+		printf("Lista interseccion: [ ");
+		while ((leido = getc(fp_resultado)) != EOF)
+			printf("%c", leido);
+
+		printf("]\n");
+		
+		fclose(fp_resultado);
+		remove("resultado.temp");
+	}
+	
 
 
 	// Liberar memoria
 
+	free(mejor_hebra_tiempo);
+	free(promedios_tiempos);
+	free(mejor_hebra);
+	free(tiempos_equipos);
+	free(grupos_hilos);
+	free(id_equipos);
 	
 	return 0;
 

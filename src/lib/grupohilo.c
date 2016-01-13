@@ -14,17 +14,31 @@ struct argumento{
 };
 
 
-void inicializar_grupohilo(grupohilo* grupohilo, char* nombre_archivo, int threads_por_equipo){
+void inicializar_grupohilo(grupohilo* grupohilo, char* nombre_archivo, int threads_por_equipo, int id_grupo){
 
 	grupohilo->num_threads = threads_por_equipo; 
     grupohilo->hilos = (pthread_t*) malloc(sizeof(pthread_t) * grupohilo->num_threads);
     grupohilo->tiempo_hebra = (double*) malloc(sizeof(double) * grupohilo->num_threads);
   
-
+    grupohilo->id_grupo = id_grupo;
 
     leer_listas(grupohilo, nombre_archivo);
 
     inicializar_monitor(&grupohilo->monitor, grupohilo->num_threads, grupohilo->cuantas_listas);
+
+}
+
+void destruir_grupohilo(grupohilo* grupohilo){
+
+	int i;
+	free(grupohilo->hilos);
+	free(grupohilo->tiempo_hebra);
+
+	for(i=0; i<grupohilo->cuantas_listas; i++){
+		free(grupohilo->conjunto_listas[i].num);
+	}
+
+	free(grupohilo->conjunto_listas);
 
 }
 
@@ -33,6 +47,7 @@ void inicializar_grupohilo(grupohilo* grupohilo, char* nombre_archivo, int threa
 void* hebra_intersecta(void* arg){
 
 	int i;
+	FILE* fp_resultado;
 
 	// Datos para calcular el tiempo
 	clock_t begin, end;
@@ -65,7 +80,7 @@ void* hebra_intersecta(void* arg){
 
 	while(quedan_listas(monitor))
 	{
-
+		break;
 
 		//printf("S: ");
 		//mostrarlista(S);
@@ -132,11 +147,19 @@ void* hebra_intersecta(void* arg){
 
 	}
 
-	printf("Lista final (tamano = %d = %d): ", S->tamano, monitor->tamano_sprima);
-	mostrarlista(S);
-
 	// Detener la cuenta del tiempo
 	end = clock();
+
+	// Escribir el resultado en una lista (solo una hebra de un grupo lo puede hacer)
+	if(id_hilo == 0 && grupohilo->id_grupo == 0){
+		fp_resultado = fopen("resultado.temp", "w");
+
+		for(i=0; i<S->tamano; i++){
+			fprintf(fp_resultado, "%d ", S->num[i]);
+		}
+
+		fclose(fp_resultado);		
+	}
 
 	// Obtener cuanto tiempo tardo
 	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
@@ -148,7 +171,7 @@ void* hebra_intersecta(void* arg){
 }
 
 
-void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio_tiempos){
+void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio_tiempos, double* mejor_tiempo_hebra){
 
 	int i;
 	int min;
@@ -172,8 +195,6 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 		argumento[i].ptr_grupohilo = grupohilo;
 	}
 
-	printf("Monitor. Cantidad hilos %d, cantidad listas %d, lista actual %d\n", grupohilo->monitor.cuantos_hilos, grupohilo->monitor.cuantas_listas, grupohilo->monitor.lista_actual);
-
 	// Crear hilos
 	for(i=0; i<grupohilo->num_threads; i++){
 		pthread_create(&grupohilo->hilos[i], NULL, hebra_intersecta, &argumento[i]);
@@ -187,12 +208,16 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 
 	// Obtener cual fue la mejor hebra
 	min = 0;
+	*mejor_tiempo_hebra = grupohilo->tiempo_hebra[0];
 
 	for(i=1; i<grupohilo->num_threads; i++){
 		if(grupohilo->tiempo_hebra[i] < grupohilo->tiempo_hebra[min]){
-			min = i;
+			min = i;			
 		}
 	} 
+
+	
+
 
 	// Obtener promedio
 	suma = 0;
@@ -202,6 +227,7 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 
 	*promedio_tiempos = suma/grupohilo->num_threads;
 	*mejor_hebra = min;
+	*mejor_tiempo_hebra = grupohilo->tiempo_hebra[min];
 
 
 }
