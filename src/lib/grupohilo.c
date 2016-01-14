@@ -76,24 +76,24 @@ void* hebra_intersecta(void* arg){
 	// Rangos "desde" y "hasta" para calcular cual sera la sublista K de esta hebra
 	int desde;
 	int hasta;
-	int k_dividido_p;
+	int k_dividido_p;	// Almacena |K| dividido por cantidad_hilos, aproximado al siguiente entero
 	
 
 
 	// Comenzar a contar el tiempo
 	begin = clock();
 	
-	// Obtener la lista inicial, la mas corta
+	// Obtener la lista inicial, la mas corta (las listas se ordenaron de menor tamano a mayor)
 	S = &grupohilo->conjunto_listas[0];
 	
-
+	// Mientras queden listas que intersectar, y ademas la interseccion anterior no haya resultado vacia
 	while(quedan_listas(monitor) && comprobar_interseccion_no_vacia(monitor))
 	{
 
-
+		// Obtener la lista K
 		K = &grupohilo->conjunto_listas[monitor->lista_actual];
 
-
+		// [K]/P
 		k_dividido_p = K->tamano/grupohilo->num_threads;
 
 		// Si la division no es perfecta, significa que se aproxima al numero siguiente
@@ -130,14 +130,17 @@ void* hebra_intersecta(void* arg){
 
 
 					// Si esta, entonces agregarlo a la lista S'
-
+					// (Procedimiento thread safe)
 					agregar_elemento_sprima(monitor, S->num[i]);
 				}
 			}
 		}
 		
 		
-
+		// Esto sirve para avisarle al monitor que este hilo ha terminado su procesamiento
+		// de la lista K actual. Todos deben terminar antes de continuar, para asi poder obtener
+		// una nueva lista K y S'.
+		// Este procedimiento hace que la hebra actual se quede esperando hasta que todos terminen.
 		monitor_termine_de_procesar_una_sublista_k(monitor, S, id_hilo);
 
 
@@ -157,7 +160,7 @@ void* hebra_intersecta(void* arg){
 			fprintf(fp_resultado, "%d ", S->num[i]);
 		}
 
-		// Entrega un error
+		// Este free entrega un error
 		//free(S->num);
 
 		fclose(fp_resultado);		
@@ -175,7 +178,6 @@ void* hebra_intersecta(void* arg){
 
 
 void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio_tiempos, double* mejor_tiempo_hebra){
-
 	
 	int i;
 	int min;
@@ -222,14 +224,17 @@ void intersectar_listas(grupohilo* grupohilo, int* mejor_hebra, double* promedio
 	} 
 
 	
-
-
 	// Obtener promedio
 	suma = 0;
 	for(i=0; i<grupohilo->num_threads; i++){
 		suma += grupohilo->tiempo_hebra[i];
 	} 
 
+	// Retornar todos los valores que se obtuvieron (tiempos, promedio, etc)
+	// Estos valores los obtiene la hebra que representa un grupo/equipo
+	// Luego el grupo los guarda en un arreglo perteneciente al codigo principal
+	// para que asi pueda saber los datos globales (cual fue la mejor hebra de 
+	// toda la competencia, etc)
 	*promedio_tiempos = suma/grupohilo->num_threads;
 	*mejor_hebra = min;
 	*mejor_tiempo_hebra = grupohilo->tiempo_hebra[min];
