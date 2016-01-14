@@ -1,6 +1,44 @@
 #include "lib.h"
-#include "lista.h"
-#include <stdio.h>
+
+
+void obtener_opciones_getopt(int argc, char** argv, int* cantidad_equipos, int* threads_por_equipo, char** nombre_archivo){
+
+    char option;
+    int flagarg1 = 0;
+    int flagarg2 = 0;
+    int flagarg3 = 0;
+
+    // Obtener opciones
+
+    while ((option = getopt(argc, argv, "g:h:i:")) != -1)
+        switch (option)
+        {
+            case 'g':
+                *cantidad_equipos = atoi(optarg);
+                flagarg1++;
+                break;
+            case 'h':
+                *threads_por_equipo = atoi(optarg);
+                flagarg2++;
+                break;
+            case 'i':
+                *nombre_archivo = optarg;
+                flagarg3++;
+                break;          
+            default:
+                abort();
+        }
+
+    // Validar opciones
+    if(flagarg1 == 0 || flagarg2 == 0 || flagarg3 == 0){
+        printf("Argumentos invalidos\n");
+        exit(1);
+    }
+
+
+}
+
+
 
 void tres_primeros_lugares(int* arreglo_a_rellenar, int cantidad_total_equipos, double* tiempos){
 

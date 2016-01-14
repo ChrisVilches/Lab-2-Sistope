@@ -4,6 +4,7 @@
 #include "monitor.h"
 #include <pthread.h>
 
+// Mutex que sirve para leer los archivos de listas de manera exclusiva
 pthread_mutex_t leer_archivos_mutex;
 
 typedef struct {

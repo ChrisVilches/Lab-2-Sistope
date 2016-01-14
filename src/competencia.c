@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <getopt.h>
 #include <sys/types.h>
 #include <pthread.h>
 #include "lib/lista.h"
@@ -40,6 +39,7 @@ void* ejecutar_hilo_equipo(void* arg){
 	// Se crea el grupo
 	grupohilo equipo;
 
+	// Se inicializan los valores de la estructura del grupo
 	inicializar_grupohilo(&equipo, nombre_archivo, threads_por_equipo, id_equipo);
 
 
@@ -77,9 +77,8 @@ void* ejecutar_hilo_equipo(void* arg){
 
 }
 
-int main(int argc, char** argv){
+int main(int argc, char** argv){	
 	
-	char option;
 	int i;
 	pthread_t* grupos_hilos;
 	int* id_equipos;
@@ -89,36 +88,8 @@ int main(int argc, char** argv){
 	FILE* fp_resultado;
 	char leido;
 
-	int flagarg1 = 0;
-	int flagarg2 = 0;
-	int flagarg3 = 0;
-
-	// Obtener opciones
-
-	while ((option = getopt(argc, argv, "g:h:i:")) != -1)
-	    switch (option)
-	    {
-		    case 'g':
-			    cantidad_equipos = atoi(optarg);
-			    flagarg1++;
-			    break;
-		    case 'h':
-			    threads_por_equipo = atoi(optarg);
-			    flagarg2++;
-			    break;
-		    case 'i':
-			    nombre_archivo = optarg;
-			    flagarg3++;
-			    break;		    
-		    default:
-		    	abort();
-	    }
-
-	// Validar opciones
-	if(flagarg1 == 0 || flagarg2 == 0 || flagarg3 == 0){
-		printf("Argumentos invalidos\n");
-		exit(1);
-	}
+	// Obtener opciones usando getopt
+	obtener_opciones_getopt(argc, argv, &cantidad_equipos, &threads_por_equipo, &nombre_archivo);
 
 	// Crear el arreglo para que cada equipo almacene sus tiempos
 	tiempos_equipos = (double*) malloc(sizeof(double) * cantidad_equipos);
@@ -138,7 +109,8 @@ int main(int argc, char** argv){
 	// Crear las IDs de los equipos
 	id_equipos = (int*) malloc(sizeof(int) * cantidad_equipos);
 
-
+	// Este mutex se encuentra en el codigo fuente grupohilo.c, es una variable global
+	// Sirve para que cada hebra pueda leer el archivo de manera exclusiva
 	pthread_mutex_init(&leer_archivos_mutex, NULL);
 
 	// Enumerar las ID desde 0 hasta N-1 (cantidad de equipos)
@@ -150,8 +122,6 @@ int main(int argc, char** argv){
 	for(i=0; i<cantidad_equipos; i++){
 		pthread_create(&grupos_hilos[i], NULL, ejecutar_hilo_equipo, &id_equipos[i]);
 	}
-
-	
 	
 	/*
 	*
@@ -159,7 +129,7 @@ int main(int argc, char** argv){
 	*
 	*/
 
-	// Juntar todos los hilos (cada grupo)
+	// Juntar todos los hilos (cada grupo). La competencia termino
 	for(i=0; i<cantidad_equipos; i++){
 		pthread_join(grupos_hilos[i], NULL);
 	}

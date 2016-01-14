@@ -31,7 +31,10 @@ typedef struct {
 	// Cuantos han terminado
 	int cuantos_han_terminado;
 
-	// Variable de condicion
+	// Variable de condicion: la lista K se renueva (se obtiene la siguiente) una vez que todos los hilos
+	// han terminado su procesamiento. Cuando un hilo termina, espera esta variable de condicion,
+	// y cuando todos terminan, se hace un signal para que todos los hilos que estaban esperando,
+	// continuen su ejecucion.
 	pthread_cond_t todos_terminaron;
 
 	// Interseccion es no vacia?

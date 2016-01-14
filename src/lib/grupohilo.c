@@ -8,7 +8,10 @@
 
 
 
-
+/*
+*	Como solo se puede pasar un argumento a la hebra, esta estructura almacena varios datos
+*	los cuales luego son extraidos por la hebra
+*/
 struct argumento{
 
 	grupohilo* ptr_grupohilo;
