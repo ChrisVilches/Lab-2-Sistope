@@ -164,8 +164,7 @@ int main(int argc, char** argv){
 		pthread_join(grupos_hilos[i], NULL);
 	}
 
-	printf("\n\n**********Fin de la competencia*************\n\n");
-
+	
 	// Encontrar los tres mejores lugares
 	tres_primeros_lugares(tres_mejores, cantidad_equipos, tiempos_equipos);
 
