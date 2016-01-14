@@ -20,10 +20,17 @@ Por ejemplo
 
 1. Este algoritmo genera una interseccion de varias listas, pero la lista resultante no necesariamente es de menor longitud que las originales. En algunos casos podria ser mas larga, esto es gracias a que asi funciona el algoritmo (entregado en el enunciado), y no porque haya un problema con el codigo.
 2. Genera comportamiento indefinido si el archivo de listas tiene lineas extra en blanco.
-3. El archivo ```monitor.c``` contiene el codigo del monitor.
-4. El archivo ```competencia.c``` contiene el main, y la creacion de los hilos para cada equipo.
-5. El archivo ```grupohilo.c``` contiene el codigo para intersectar listas, y creacion y ejecucion de los hilos.
-6. Se han incluido archivos de prueba, ademas de capturas de pantalla que demuestran la ejecucion del programa.
+3. Se han incluido archivos de prueba, ademas de capturas de pantalla que demuestran la ejecucion del programa.
+4. Ademas, se incluye un diagrama que muestra la estructura de la solucion.
+
+## Archivos
+
+1. El archivo ```monitor.c``` contiene el codigo del monitor.
+2. El archivo ```competencia.c``` contiene el main, y la creacion de los hilos para cada equipo.
+3. El archivo ```grupohilo.c``` contiene el codigo para intersectar listas, y creacion y ejecucion de los hilos.
+4. El archivo ```lib.c``` contiene varias funciones como ```getopt```, algoritmos de ordenamiento, entre otras cosas.
+5. El archivo ```lista.h``` contiene la estructura usada para las listas.
+
 
 ## Caracteristicas tecnicas
 

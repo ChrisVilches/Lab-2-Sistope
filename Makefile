@@ -14,6 +14,12 @@ dir:
 main: lib.o monitor.o lista.o grupohilo.o
 # Compilar el main
 	gcc $(OBJ) $(DIR_SRC)/$(NOMBRE_MAIN).c -o $(DIR_OUTPUT)/$(NOMBRE_MAIN) -pthread $(FLAG)
+	@echo ""
+	@echo "*******************************"
+	@echo "Ingresar a la carpeta $(DIR_OUTPUT)"
+	@echo "Ejecutar ./$(NOMBRE_MAIN) usando los argumentos descritos en el enunciado o README"
+	@echo "*******************************"
+	@echo ""
 
 debug: dir lib.o monitor.o lista.o grupohilo.o
 # Compilar el main
